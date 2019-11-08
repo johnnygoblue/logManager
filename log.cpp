@@ -176,7 +176,7 @@ bool isValidTimeStamp(string t) {
 string getLower(const string &s) {
 	string ret = s;
 	for (auto &c : ret) {
-		tolower(c);
+		c = tolower(c);
 	}
 	return ret;
 }
