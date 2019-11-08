@@ -1,0 +1,15 @@
+00:00:00:00:00|sift|maximum number of trials reached
+11:11:11:11:11|cv|cv2: import error
+22:22:22:22:22|c++|cv2 not available
+33:33:33:33:33|C++|CV2 is installed
+44:44:44:44:44|html|no page available
+55:55:55:55:55|python|no package named cv2
+66:66:66:66:66|C++|Cv2 has been installed
+99:99:99:99:99|Stl|error
+11:11:11:11:10|c++|cv2 not installed
+11:11:11:11:11|cv|no function named sift
+00:00:00:01:80|g++|j++
+00:00:00:00:90|c++|i++
+99:99:99:99:99|stl|even more errors
+88:88:88:88:88|python|no package named cv
+77:77:77:77:77|MATLAB|breakfast of champions

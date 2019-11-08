@@ -1,0 +1,13 @@
+00:00:99:23:21|ISP|auto white balance
+12:34:56:78:90|brightness|over exposed
+00:01:00:22:32|sensor|bad pixel
+77:66:55:44:33|unicorn|wtf
+66:34:35:62:00|unicorn|connected!
+11:22:33:44:55|UDP|998 packets received
+01:22:33:00:12|sensor|bad pixel
+00:00:11:22:33|q factor|max is 51
+10:00:00:00:12|encoder|bad operation
+00:00:00:00:12|h265|bad header
+12:34:56:78:90|mjpeg|maximum q factor detected
+99:00:00:00:01|encoder|H265 header error
+11:22:33:44:55|TCP|connection lost

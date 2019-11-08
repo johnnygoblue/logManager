@@ -11,6 +11,7 @@ using std::string;
 string getTimeStamp(uint64_t t);
 uint64_t transformTimeStamp(std::string t);
 bool isValidTimeStamp(std::string t);
+string getLower(const string &s);
 
 class Log {
 	public:
@@ -25,20 +26,26 @@ class Log {
 			bool operator()(const uint64_t &t, const Log &l) const { return t < l.ts; }
 			bool operator()(const Log &l, const uint64_t &t) const { return l.ts < t; }
 		};
-
 		struct CompareLogEntries {
-			bool operator()(const Log &left, const Log &right) const { return left.ts < right.ts; }
+			bool operator()(const Log &left, const Log &right) const {
+				if (left.ts < right.ts) {
+					return true;
+				} else if (left.ts > right.ts) {
+					return false;
+				} else {
+					if (getLower(left.cat) < getLower(right.cat)) {
+						return true;
+					} else if (getLower(left.cat) > getLower(right.cat)) {
+						return false;
+					} else {
+						return left.id < right.id;
+					}
+				}
+			}
 		};
 
 	private:
 
-		string getLower(const string &s) {
-			string ret = s;
-			for (auto &c : ret) {
-				tolower(c);
-			}
-			return ret;
-		}
 }; // class Log
 
 class LogMan {

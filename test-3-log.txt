@@ -1,0 +1,14 @@
+00:00:00:00:30|Summoner's Rift|minions are spawned!
+00:00:00:32:15|Red Side|Victory!
+00:00:00:24:40|Blue Side|An enemy is legendary!
+00:00:00:11:11|Red Side|You have been slained!
+00:00:00:14:15|Blue Side|Your turret has been destroyed!
+00:00:00:00:59|Red Side|First Blood!
+00:00:00:12:12|Red Side|Enemy double kill!
+00:00:00:09:24|Blue Side|First Turret!
+00:00:00:24:40|Blue Side|Enemy penta kill!
+00:00:00:01:30|Summoner's Rift|Neutral buffs spawned.
+00:00:00:25:00|Blue Side|Inhibitor destroyed
+00:00:00:30:00|Blue Side|Inhibitor respawed
+00:00:00:29:00|Blue Side|your inhibitor is respawning soon!
+00:00:00:26:49|Red Side|Red team has slained baron nasher!

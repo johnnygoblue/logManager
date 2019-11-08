@@ -1,0 +1,19 @@
+t 00:00:00:00:00|00:00:00:10:00
+r
+d 0
+p
+c rEd_sIdE
+r
+c sUmmoner's RIFT
+r
+k blue inhibitor
+r
+k reD sLaIneD
+r
+k bLuE eNemY
+r
+p
+s
+p
+l
+q

@@ -135,6 +135,10 @@ void LogMan::handleCmd(const char cmd/*, const string &input*/) {
 	} // switch
 }
 
+/************************************************************************
+*************** Definitions of utility functions ************************
+************************************************************************/
+
 /* converts internal timestamp in uint64_t to original string format */
 string getTimeStamp(uint64_t t) {
 	string ts = to_string(t);
@@ -166,4 +170,13 @@ bool isValidTimeStamp(string t) {
 		return false;
 	}
 	return true;
+}
+
+/* return string content in lower case */
+string getLower(const string &s) {
+	string ret = s;
+	for (auto &c : ret) {
+		tolower(c);
+	}
+	return ret;
 }
