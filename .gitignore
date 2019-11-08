@@ -1,0 +1,7 @@
+logman
+sample-log-sorted
+make
+**.d
+**.a
+**.o
+**.swp
