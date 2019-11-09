@@ -1,47 +1,58 @@
   // Project Identifier: 01BD41C3BF016AD7E8B6F837DF18926EC3E83350
 #include <iostream>
 #include <string>
-#include <deque>
+#include <vector> // val in category
+#include <deque> // master_log
+#include <unordered_map> // category
 #include <utility> // pair
-#include <iterator>
+#include <iterator> // back_inserter
 
 using std::string;
 
 /* utility functions */
-string getTimeStamp(uint64_t t);
-uint64_t transformTimeStamp(std::string t);
+string getTimeStamp(int64_t t);
+int64_t transformTimeStamp(std::string t);
 bool isValidTimeStamp(std::string t);
 string getLower(const string &s);
 
 class Log {
 	public:
-		Log(const string _cat, const string _msg, const uint64_t _ts, const uint64_t _id) :
-			cat(_cat), msg(_msg), ts(_ts), id(_id) {}
+		Log(const string _cat, const string _msg, const int64_t _ts) :
+			cat(_cat), msg(_msg), ts(_ts) {}
 		string cat;
 		string msg;
-		uint64_t ts;
-		uint64_t id;
+		int64_t ts;
 
-		struct CompareByTimeStamp {
-			bool operator()(const uint64_t &t, const Log &l) const { return t < l.ts; }
-			bool operator()(const Log &l, const uint64_t &t) const { return l.ts < t; }
-		};
-		struct CompareLogEntries {
-			bool operator()(const Log &left, const Log &right) const {
-				if (left.ts < right.ts) {
-					return true;
-				} else if (left.ts > right.ts) {
-					return false;
-				} else {
-					if (getLower(left.cat) < getLower(right.cat)) {
+		/* used to get a container of indexes to log entries by ascending time stamp */
+		class SortIndexByTimeStamp {
+			const std::deque<Log> &logs;
+			public:
+				SortIndexByTimeStamp(const std::deque<Log> &master) : logs(master) {}
+
+				bool operator()(uint64_t i, uint64_t j) const {
+					if (logs[i].ts < logs[j].ts) {
 						return true;
-					} else if (getLower(left.cat) > getLower(right.cat)) {
+					} else if (logs[i].ts > logs[j].ts) {
 						return false;
 					} else {
-						return left.id < right.id;
+						if (getLower(logs[i].cat) < getLower(logs[j].cat)) {
+							return true;
+						} else if (getLower(logs[i].cat) > getLower(logs[j].cat)) {
+							return false;
+						} else {
+							return i < j;
+						}
 					}
-				}
-			}
+				} // operator
+		};
+
+		/* used to compare log entries with time stamps directly */
+		class CompareByTimeStamp {
+			const std::deque<Log> &master;
+			public:
+				CompareByTimeStamp(const std::deque<Log> &_master) : master(_master) {}
+				bool operator()(uint64_t i, int64_t t) const { return master[i].ts < t; }
+				bool operator()(int64_t t, uint64_t i) const { return t < master[i].ts; }
 		};
 
 	private:
@@ -56,28 +67,28 @@ class LogMan {
 		void promptCmd();
 
 	private:
-		std::deque<Log> master_log;
+		std::deque<Log> master_log; /* contains log entries in original order */
+		std::vector<uint64_t> log_idx_ts; /* contains log id sorted by timestamp */
+		std::unordered_map<string, std::vector<uint64_t>> category;
+		std::deque<uint64_t> excerpt_list; /* contains log entries by log id */
 		std::pair<int64_t, int64_t> most_recent = std::make_pair(-1, -1);
+		string last_cat_search = "";
+		bool build_category = false;
+		char last_search = 'n';
 
-		void handleCmd(const char cmd/*, const string &input*/);
-		void tCmdHandle(const string &t1, const string &t2) {
-			int64_t num_entries = 0;
-			if (isValidTimeStamp(t1) && isValidTimeStamp(t2)) {
-				auto lower = std::lower_bound(master_log.begin(), master_log.end(),
-						transformTimeStamp(t1), Log::CompareByTimeStamp());
-				auto upper = std::upper_bound(master_log.begin(), master_log.end(),
-						transformTimeStamp(t2), Log::CompareByTimeStamp());
-				most_recent.first = lower - master_log.begin();
-				most_recent.second = upper - master_log.begin();
-				num_entries = most_recent.second - most_recent.first;
-			}
-			std::cout << "Timestamp search: " << num_entries << " entries found\n";
-		}
-
-		//std::pair<ForwardIt, ForwardIt> mCmdHandle(string t);
-		//void dbgPrintRangeLog(std::pair<ForwardIt, ForwardIt> p);
-		void cCmdHandle(string cat);
-		void kCmdHandle(string keyword);
-
+		bool hasLastSearch();
+		void handleCmd(const char cmd);
+		void tCmdHandle();
+		void mCmdHandle();
+		void buildCategory();
+		void cCmdHandle();
+		void rCmdHandle();
+		void pCmdHandle();
+		void dCmdHandle();
+		void bCmdHandle();
+		void eCmdHandle();
+		void lCmdHandle();
+		void sCmdHandle();
+		void gCmdHandle();
 }; // class LogMan
 
