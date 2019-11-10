@@ -2,6 +2,7 @@ logman
 sample-log-sorted
 make
 tags
+sample-*
 **.d
 **.a
 **.o

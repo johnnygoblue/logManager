@@ -1,6 +1,7 @@
   // Project Identifier: 01BD41C3BF016AD7E8B6F837DF18926EC3E83350
 #include <iostream>
 #include <string>
+#include <strings.h> // strcasecmp
 #include <vector> // val in category
 #include <deque> // master_log
 #include <unordered_map> // category
@@ -35,9 +36,9 @@ class Log {
 					} else if (logs[i].ts > logs[j].ts) {
 						return false;
 					} else {
-						if (getLower(logs[i].cat) < getLower(logs[j].cat)) {
+						if (strcasecmp(&logs[i].cat[0], &logs[j].cat[0]) < 0) {
 							return true;
-						} else if (getLower(logs[i].cat) > getLower(logs[j].cat)) {
+						} else if (strcasecmp(&logs[i].cat[0], &logs[j].cat[0]) > 0) {
 							return false;
 						} else {
 							return i < j;

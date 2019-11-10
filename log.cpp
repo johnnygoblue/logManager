@@ -178,7 +178,7 @@ void LogMan::tCmdHandle() {
 		most_recent.second = upper - log_idx_ts.begin();
 		num_entries = most_recent.second - most_recent.first;
 	}
-	std::cout << "Timestamp search: " << num_entries << " entries found\n";
+	std::cout << "Timestamps search: " << num_entries << " entries found\n";
 }
 
 void LogMan::mCmdHandle() {
@@ -222,17 +222,20 @@ bool LogMan::hasLastSearch() {
 void LogMan::rCmdHandle() {
 	// append last search result to excerpt list
 	if (hasLastSearch()) {
+		int64_t num_entries = 0;
 		switch(last_search) {
 			case 't': case 'm':
 				if (most_recent.first != most_recent.second) {
 					auto lower_it = log_idx_ts.begin() + most_recent.first;
 					auto upper_it = log_idx_ts.begin() + most_recent.second;
+					num_entries = most_recent.second - most_recent.first;
 					std::copy(lower_it, upper_it, std::back_inserter(excerpt_list));
 					break;
 				}
 				break;
 			case 'c':
 				if (last_cat_search.length() != 0) {
+					num_entries = category[last_cat_search].size();
 					std::copy(category[last_cat_search].begin(), category[last_cat_search].end(),
 						std::back_inserter(excerpt_list));
 				}
@@ -240,6 +243,7 @@ void LogMan::rCmdHandle() {
 			case 'k':
 				break;
 		} // switch
+		cout << num_entries << " log entries appended\n";
 	}
 }
 
@@ -268,6 +272,7 @@ void LogMan::bCmdHandle() {
 		return;
 	}
 	if (pos == 0) {
+		cout << "Moved excerpt list entry " << pos <<"\n";
 		return;
 	}
 	uint64_t target = excerpt_list[pos];
@@ -284,6 +289,7 @@ void LogMan::eCmdHandle() {
 		return;
 	}
 	if (pos == excerpt_list.size() - 1) {
+		cout << "Moved excerpt list entry " << pos <<"\n";
 		return;
 	}
 	uint64_t target = excerpt_list[pos];
@@ -331,7 +337,7 @@ void LogMan::gCmdHandle() {
 			case 't': case 'm':
 				{
 					for (int64_t i = most_recent.first; i != most_recent.second; ++i) {
-						cout << i << "|" << master_log[log_idx_ts[(uint64_t)i]];
+						cout << log_idx_ts[i] << "|" << master_log[log_idx_ts[(uint64_t)i]];
 					}
 					break;
 				}
