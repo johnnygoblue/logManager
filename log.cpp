@@ -114,10 +114,12 @@ void LogMan::handleCmd(const char cmd) {
 			if (!build_category) {
 				buildCategory();
 			}
+			kCmdHandle();
 			break;
 				  }
 		/* excerpt list commands */
 		case 'a':
+			aCmdHandle();
 			break;
 		case 'r':
 			rCmdHandle();
@@ -146,7 +148,11 @@ void LogMan::handleCmd(const char cmd) {
 		case 'q':
 			break;
 		case '#':
+			{
+			string junk;
+			getline(cin, junk);
 			break;
+			}
 		default:
 			cerr << "Unrecognized command '" << cmd << "'!\n";
 			break;
@@ -321,29 +327,45 @@ void LogMan::gCmdHandle() {
 	if (last_search == 'n') {
 		return;
 	} else {
-		//TODO sort by timestamp, ties broken by category and further ties broken by entryID
 		switch (last_search) {
 			case 't': case 'm':
 				{
 					for (int64_t i = most_recent.first; i != most_recent.second; ++i) {
-						cout << i << "|" << master_log[(uint64_t)i];
+						cout << i << "|" << master_log[log_idx_ts[(uint64_t)i]];
 					}
 					break;
 				}
 			case 'c':
 				{
 					for (unsigned i = 0; i < category[last_cat_search].size(); ++i) {
-						cout << category[last_cat_search][i] << master_log[category[last_cat_search][i]];
+						cout << category[last_cat_search][i] << "|" << master_log[category[last_cat_search][i]];
 					}
 					break;
 				}
 			case 'k':
 				{
-					//TODO
+					//TODO sort by timestamp
 					break;
 				}
 		} // switch
 	} // else
+}
+
+void LogMan::aCmdHandle() {
+	unsigned pos;
+	cin >> pos;
+	if (pos >= master_log.size()) {
+		cerr << "Invalid integer for [a] append log entry command\n";
+		return;
+	}
+	excerpt_list.push_back(pos);
+	cout << "log entry " << pos << " appended\n";
+}
+
+void LogMan::kCmdHandle() {
+	unsigned num_entries = 0;
+	//TODO implement this function
+	cout << "Keyword search: " << num_entries << " entries found\n";
 }
 
 /************************************************************************

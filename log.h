@@ -90,5 +90,7 @@ class LogMan {
 		void lCmdHandle();
 		void sCmdHandle();
 		void gCmdHandle();
+		void aCmdHandle();
+		void kCmdHandle();
 }; // class LogMan
 

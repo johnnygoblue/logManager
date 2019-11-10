@@ -3,3 +3,6 @@
 11:22:33:44:55|CS|jobs
 00:00:00:11:22|EE|hard
 33:33:33:33:33|EECS|rocks
+90:12:35:35:52|EE|past golden times
+24:24:21:12:11|UofM|largely an EE school but CS is okay
+00:10:00:00:00|EECS|cab be always hard
