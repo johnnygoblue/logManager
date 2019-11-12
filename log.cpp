@@ -235,7 +235,7 @@ void LogMan::rCmdHandle() {
 				break;
 			case 'c':
 				if (last_cat_search.length() != 0) {
-					num_entries = category[last_cat_search].size();
+					num_entries = (int64_t)category[last_cat_search].size();
 					std::copy(category[last_cat_search].begin(), category[last_cat_search].end(),
 						std::back_inserter(excerpt_list));
 				}
@@ -337,7 +337,7 @@ void LogMan::gCmdHandle() {
 			case 't': case 'm':
 				{
 					for (int64_t i = most_recent.first; i != most_recent.second; ++i) {
-						cout << log_idx_ts[i] << "|" << master_log[log_idx_ts[(uint64_t)i]];
+						cout << log_idx_ts[(uint64_t)i] << "|" << master_log[log_idx_ts[(uint64_t)i]];
 					}
 					break;
 				}
