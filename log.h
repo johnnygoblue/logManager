@@ -15,6 +15,7 @@ string getTimeStamp(int64_t t);
 int64_t transformTimeStamp(std::string t);
 bool isValidTimeStamp(std::string t);
 string getLower(const string &s);
+bool matchKeyword(char c_msg, char c_key);
 
 class Log {
 	public:
@@ -70,8 +71,10 @@ class LogMan {
 	private:
 		std::deque<Log> master_log; /* contains log entries in original order */
 		std::vector<uint64_t> log_idx_ts; /* contains log id sorted by timestamp */
+		std::unordered_map<string, std::vector<uint64_t>> keyword_map;
 		std::unordered_map<string, std::vector<uint64_t>> category;
 		std::deque<uint64_t> excerpt_list; /* contains log entries by log id */
+		std::vector<uint64_t> last_keyword_search;
 		std::pair<int64_t, int64_t> most_recent = std::make_pair(-1, -1);
 		string last_cat_search = "";
 		bool build_category = false;

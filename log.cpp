@@ -7,6 +7,7 @@
 #include <algorithm> // replace, sort
 #include <sstream> // istringstream
 #include <numeric> // iota
+#include <cctype> // isalnum
 
 #include "log.h"
 
@@ -241,6 +242,11 @@ void LogMan::rCmdHandle() {
 				}
 				break;
 			case 'k':
+				if (last_keyword_search.size() != 0) {
+					std::copy(last_keyword_search.begin(), last_keyword_search.end(),
+							std::back_inserter(excerpt_list));
+				}
+				num_entries = (int64_t)last_keyword_search.size();
 				break;
 		} // switch
 		cout << num_entries << " log entries appended\n";
@@ -350,7 +356,9 @@ void LogMan::gCmdHandle() {
 				}
 			case 'k':
 				{
-					//TODO sort by timestamp
+					for (unsigned i = 0; i < last_keyword_search.size(); ++i) {
+						cout << last_keyword_search[i] << "|" << master_log[last_keyword_search[i]];
+					}
 					break;
 				}
 		} // switch
@@ -371,7 +379,49 @@ void LogMan::aCmdHandle() {
 void LogMan::kCmdHandle() {
 	unsigned num_entries = 0;
 	//TODO implement this function
+	string input;
+	string keyword;
+	getline(cin, input);
+	auto pos = input.begin();
+	std::vector<string> keywords;
+	/* fill up keyword_map */
+	while ((pos = find_if(input.begin(), input.end(), isalnum)) != input.end()) {
+		keyword = input.substr(0, (unsigned)(pos - input.begin()));
+		transform(keyword.begin(), keyword.end(), keyword.begin(), tolower);
+		keywords.push_back(keyword);
+		auto it = keyword_map.find(keyword);
+		if (it != keyword_map.end()) {
+			continue; // this keyword has been mapped already, move on
+		}
+		for (uint64_t i = 0; i < log_idx_ts.size(); ++i) {
+			uint64_t id = log_idx_ts[i];
+			auto p = search(master_log[id].msg.begin(), master_log[id].msg.end(),
+					 keyword.begin(), keyword.end(), matchKeyword);
+			auto q = search(master_log[id].cat.begin(), master_log[id].cat.end(),
+					 keyword.begin(), keyword.end(), matchKeyword);
+			if (p != master_log[id].msg.end() || q != master_log[id].cat.end()) {
+				keyword_map[keyword].push_back(id);
+			}
+		} // for
+		if (keyword_map.find(keyword) == keyword_map.end()) {
+			last_keyword_search = std::vector<uint64_t>();
+			cout << "Keyword search: " << num_entries << " entries found\n";
+			return;
+		}
+	} // while
+
+	/* do set_intersection */
+	auto it = keyword_map.begin();
+	std::vector<uint64_t> prev(it->second.begin(), it->second.end());
+	std::vector<uint64_t> ret(prev.size());
+	while (it != keyword_map.end()) {
+		auto r_end = set_intersection(prev.begin(), prev.end(), it->second.begin(),
+				it->second.end(), ret.begin());
+		prev.assign(ret.begin(), r_end);
+	}
+	num_entries = (unsigned)(ret.end() - ret.begin());
 	cout << "Keyword search: " << num_entries << " entries found\n";
+	last_keyword_search.assign(ret.begin(), ret.end());
 }
 
 /************************************************************************
@@ -418,4 +468,9 @@ string getLower(const string &s) {
 		c = (char)tolower(c);
 	}
 	return ret;
+}
+
+/* compare char in a msg with char keyword that is lowercase */
+bool matchKeyword(char c_msg, char c_keyword) {
+	return (tolower(c_msg) == c_keyword);
 }
