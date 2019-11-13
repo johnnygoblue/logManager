@@ -1,5 +1,5 @@
-import multiprocessing
 import os
+import time
 import subprocess
 
 cwd = os.getcwd()
@@ -7,37 +7,40 @@ valid_cmds = ['b', 'c', 'd', 'e', 'k', 'q', 't', 'g']
 
 class TestSample:
     def __init__(self, cmd=None):
+        self.cmd = cmd
         self.exec_file = os.path.join(cwd, "logman")
         self.input_file = "sample-log.txt"
-        #self.input_file = os.path.join(cwd, "sample-log.txt")
         self.cmd_file = "sample-" + cmd + "-cmds.txt"
-        #self.cmd_file = os.path.join(cwd, "sample-" + cmd + "-cmds.txt")
         self.output_file = "sample-" + cmd
-        #self.output_file = os.path.join(cwd, "sample-" + cmd)
         self.golden_file = "sample-" + cmd + "-out.txt"
-        #self.golden_file = os.path.join(cwd, "sample-" + cmd + "-out.txt")
         # run this test instance from below
         print("instance with cmd = ", cmd)
         self._run_test()
-        #self._diff_test()
-        #self._print_result()
+        self._diff_test()
+        self._print_result()
 
     def _run_test(self):
+        #cmd = [self.exec_file, self.input_file, "<", self.cmd_file, ">", self.output_file]
+        #self.output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, timeout=3)
         cmd = [self.exec_file, self.input_file, "<", self.cmd_file, ">", self.output_file]
-        #self.output = subprocess.check_output(cmd, stderr=subprocess.STDOUT, timeout=3)
-        subprocess.Popen(["ls", "-l", ">>", "tmp"])
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, cwd=cwd)
+        time.sleep(1)
+        #proc.communicate(b'q', timeout=5)
         #subprocess.Popen(cmd)
 
     def _diff_test(self):
-        cmd = ["diff", self.golden_file, self.output_File]
-        self.result = subprocess.run(cmd, stdout=subprocess.PIPE, timeout=3).stdout.decode('utf-8')
+        cmd = ["/usr/bin/diff", os.path.join(cwd,self.golden_file), os.path.join(cwd,self.output_file)]
+        try:
+            self.result = subprocess.check_output(cmd)
+        except subprocess.CalledProcessError as e:
+            output = e.output
 
     def _print_result(self):
-        print("RESULT")
-        if self.result.stdout is None:
-            print("command %s PASS" %(cmd))
+        print("RESULT = ", self.result)
+        if self.result is b'':
+            print("command %s PASS" %(self.cmd))
         else:
-            print("command %s FAIL" %(cmd))
+            print("command %s FAIL" %(self.cmd))
 
 
 class TestP3:

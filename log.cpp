@@ -378,39 +378,66 @@ void LogMan::aCmdHandle() {
 
 void LogMan::kCmdHandle() {
 	unsigned num_entries = 0;
-	//TODO implement this function
 	string input;
 	string keyword;
 	getline(cin, input);
-	auto pos = input.begin();
-	std::vector<string> keywords;
-	/* fill up keyword_map */
-	while ((pos = find_if(input.begin(), input.end(), isalnum)) != input.end()) {
-		keyword = input.substr(0, (unsigned)(pos - input.begin()));
-		transform(keyword.begin(), keyword.end(), keyword.begin(), tolower);
-		keywords.push_back(keyword);
-		auto it = keyword_map.find(keyword);
-		if (it != keyword_map.end()) {
-			continue; // this keyword has been mapped already, move on
-		}
+	std::unordered_set<string> keywords;
+	transform(input.begin(), input.end(), input.begin(), tolower);
+	/* find and store keywords in set */
+	for (auto it = input.begin(); it != input.end(); ++it) {
+		auto pos1 = find_if(it, input.end(), isalnum);
+		if (pos1 != input.end()) {
+			auto pos2 = pos1;
+			while (pos2 != input.end()) {
+				if (!isalnum(*pos2)) {
+					break;
+				}
+				++pos2;
+				++it;
+			} // while
+			keyword = string(pos1, pos2);
+			if (keywords.find(keyword) == keywords.end()) {
+				keywords.insert(keyword);
+			}
+		} // if
+	} // for
+
+	/* match keyword with corresponding log entries id */
+	for (auto it = keywords.begin(); it != keywords.end(); ++it) {
+		if (keyword_map.find(*it) != keyword_map.end()) {
+			continue; // already stored in keyword_map
+		} // if
 		for (uint64_t i = 0; i < log_idx_ts.size(); ++i) {
 			uint64_t id = log_idx_ts[i];
-			auto p = search(master_log[id].msg.begin(), master_log[id].msg.end(),
-					 keyword.begin(), keyword.end(), matchKeyword);
-			auto q = search(master_log[id].cat.begin(), master_log[id].cat.end(),
-					 keyword.begin(), keyword.end(), matchKeyword);
-			if (p != master_log[id].msg.end() || q != master_log[id].cat.end()) {
-				keyword_map[keyword].push_back(id);
+			auto s_msg = search(master_log[id].msg.begin(), master_log[id].msg.end(),
+					(*it).begin(), (*it).end(), matchKeyword);
+			auto s_cat = search(master_log[id].cat.begin(), master_log[id].cat.end(),
+					(*it).begin(), (*it).end(), matchKeyword);
+			/*
+			if (s_msg != master_log[id].msg.end() || s_cat != master_log[id].cat.end()) {
+				keyword_map[*it].push_back(id);
+			}
+			*/
+			if (s_msg != master_log[id].msg.end() || s_cat != master_log[id].cat.end()) {
+				bool flag = false;
+				bool beg_is_good = false;
+				bool end_is_good = false;
+				if (s_msg != master_log[id].msg.end()) {
+					if (s_msg == master_log[id].msg.begin()) {
+						beg_is_good = true;
+					} else {
+					}
+				} else if (!flag && s_cat != master_log[id].cat.end()){
+
+				} else {
+					cerr << "should not be here!\n";
+				}
+				keyword_map[*it].push_back(id);
 			}
 		} // for
-		if (keyword_map.find(keyword) == keyword_map.end()) {
-			last_keyword_search = std::vector<uint64_t>();
-			cout << "Keyword search: " << num_entries << " entries found\n";
-			return;
-		}
-	} // while
+	} // for
 
-	/* do set_intersection */
+	// do set_intersection
 	auto it = keyword_map.begin();
 	std::vector<uint64_t> prev(it->second.begin(), it->second.end());
 	std::vector<uint64_t> ret(prev.size());
@@ -418,10 +445,12 @@ void LogMan::kCmdHandle() {
 		auto r_end = set_intersection(prev.begin(), prev.end(), it->second.begin(),
 				it->second.end(), ret.begin());
 		prev.assign(ret.begin(), r_end);
+		++it;
 	}
 	num_entries = (unsigned)(ret.end() - ret.begin());
 	cout << "Keyword search: " << num_entries << " entries found\n";
 	last_keyword_search.assign(ret.begin(), ret.end());
+	return;
 }
 
 /************************************************************************

@@ -5,6 +5,7 @@
 #include <vector> // val in category
 #include <deque> // master_log
 #include <unordered_map> // category
+#include <unordered_set> // keywords
 #include <utility> // pair
 #include <iterator> // back_inserter
 
