@@ -377,7 +377,7 @@ void LogMan::aCmdHandle() {
 }
 
 void LogMan::kCmdHandle() {
-	unsigned num_entries = 0;
+	uint64_t num_entries = 0;
 	string input;
 	string keyword;
 	getline(cin, input);
@@ -407,47 +407,62 @@ void LogMan::kCmdHandle() {
 		if (keyword_map.find(*it) != keyword_map.end()) {
 			continue; // already stored in keyword_map
 		} // if
+		unsigned keysize = (unsigned)(*it).size();
+		bool match = false;
+		/* find log entries that contain this keyword */
 		for (uint64_t i = 0; i < log_idx_ts.size(); ++i) {
 			uint64_t id = log_idx_ts[i];
-			auto s_msg = search(master_log[id].msg.begin(), master_log[id].msg.end(),
-					(*it).begin(), (*it).end(), matchKeyword);
+			bool found = false;
+			//cout << "Find keyword " << (*it) << " in log entry " << id << " :";
 			auto s_cat = search(master_log[id].cat.begin(), master_log[id].cat.end(),
 					(*it).begin(), (*it).end(), matchKeyword);
-			/*
-			if (s_msg != master_log[id].msg.end() || s_cat != master_log[id].cat.end()) {
-				keyword_map[*it].push_back(id);
-			}
-			*/
-			if (s_msg != master_log[id].msg.end() || s_cat != master_log[id].cat.end()) {
-				bool flag = false;
-				bool beg_is_good = false;
-				bool end_is_good = false;
-				if (s_msg != master_log[id].msg.end()) {
-					if (s_msg == master_log[id].msg.begin()) {
-						beg_is_good = true;
-					} else {
-					}
-				} else if (!flag && s_cat != master_log[id].cat.end()){
-
-				} else {
-					cerr << "should not be here!\n";
+			while (s_cat != master_log[id].cat.end()) {
+				//cout << "(cat " << s_cat - master_log[id].cat.begin() << ") ";
+				if (isValidMatch(master_log[id].cat, (s_cat - master_log[id].cat.begin()),
+							(s_cat - master_log[id].cat.begin() + keysize))) {
+					//cout << "found";
+					found = true;
+					break;
 				}
+				s_cat = search(s_cat + (long)keysize, master_log[id].cat.end(), (*it).begin(), (*it).end(), matchKeyword);
+			}
+			//cout << "\n";
+			auto s_msg = search(master_log[id].msg.begin(), master_log[id].msg.end(),
+					(*it).begin(), (*it).end(), matchKeyword);
+			while (s_msg != master_log[id].msg.end()) {
+				//cout << "(msg " << s_msg - master_log[id].msg.begin() << ") ";
+				if (isValidMatch(master_log[id].msg, s_msg - master_log[id].msg.begin(),
+							s_msg - master_log[id].msg.begin() + keysize)) {
+					//cout << "found";
+					found = true;
+					break;
+				}
+				s_msg = search(s_msg + (long)keysize, master_log[id].msg.end(), (*it).begin(), (*it).end(), matchKeyword);
+			}
+			//cout << "\n";
+			if (found) {
+				match = found; // we got a match for this keyword!
 				keyword_map[*it].push_back(id);
 			}
 		} // for
+		if (!match) { // one of the keyword has no match in master log, no need to go further!
+			cout << "Keyword search: 0 entries found\n";
+			return;
+		}
 	} // for
 
 	// do set_intersection
-	auto it = keyword_map.begin();
-	std::vector<uint64_t> prev(it->second.begin(), it->second.end());
-	std::vector<uint64_t> ret(prev.size());
-	while (it != keyword_map.end()) {
-		auto r_end = set_intersection(prev.begin(), prev.end(), it->second.begin(),
-				it->second.end(), ret.begin());
-		prev.assign(ret.begin(), r_end);
-		++it;
+	std::vector<uint64_t> prev;
+	std::vector<uint64_t> ret;
+	auto key = keywords.begin();
+	prev.assign(keyword_map[*key].begin(), keyword_map[*key].end());
+	for (auto it = keywords.begin(); it != keywords.end(); ++it) {
+		ret.clear();
+		set_intersection(prev.begin(), prev.end(), keyword_map[*it].begin(),
+				keyword_map[*it].end(), back_inserter(ret), Log::SortIndexByTimeStamp(master_log));
+		prev = ret;
 	}
-	num_entries = (unsigned)(ret.end() - ret.begin());
+	num_entries = ret.size();
 	cout << "Keyword search: " << num_entries << " entries found\n";
 	last_keyword_search.assign(ret.begin(), ret.end());
 	return;
@@ -502,4 +517,21 @@ string getLower(const string &s) {
 /* compare char in a msg with char keyword that is lowercase */
 bool matchKeyword(char c_msg, char c_keyword) {
 	return (tolower(c_msg) == c_keyword);
+}
+
+/* determine if a matched keyword in string is a valid keyword */
+bool isValidMatch(const string &s, long pos1, long pos2) {
+	bool is_valid_beg = false;
+	bool is_valid_end = false;
+	if (pos1 == 0) {
+		is_valid_beg = true;
+	} else {
+		is_valid_beg = !isalnum(s[(unsigned)--pos1]);
+	}
+	if ((unsigned)pos2 == s.length()) {
+		is_valid_end = true;
+	} else {
+		is_valid_end = !isalnum(s[(unsigned)pos2]);
+	}
+	return is_valid_beg && is_valid_end;
 }

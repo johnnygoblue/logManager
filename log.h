@@ -17,6 +17,7 @@ int64_t transformTimeStamp(std::string t);
 bool isValidTimeStamp(std::string t);
 string getLower(const string &s);
 bool matchKeyword(char c_msg, char c_key);
+bool isValidMatch(const string &s, long pos1, long pos2);
 
 class Log {
 	public:
