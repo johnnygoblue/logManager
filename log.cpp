@@ -310,6 +310,7 @@ void LogMan::lCmdHandle() {
 		cout << "(previously empty)\n";
 	} else {
 		uint64_t last = excerpt_list.size() - 1;
+		cout << "previous contents:\n";
 		cout << 0 << "|" << excerpt_list[0] << "|" << master_log[excerpt_list[0]];
 		cout << "...\n";
 		cout << last<< "|" << excerpt_list[last] << "|" << master_log[excerpt_list[last]];
