@@ -84,7 +84,7 @@ class LogMan {
 
 		bool hasLastSearch();
 		void handleCmd(const char cmd);
-		void tCmdHandle();
+		bool tCmdHandle();
 		void mCmdHandle();
 		void buildCategory();
 		void cCmdHandle();

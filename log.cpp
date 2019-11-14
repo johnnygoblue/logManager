@@ -93,10 +93,11 @@ void LogMan::promptCmd() {
 }
 
 void LogMan::handleCmd(const char cmd) {
+	bool success = true;
 	switch (cmd) {
 		/* searching commands */
 		case 't': {
-			tCmdHandle();
+			success = tCmdHandle();
 			break;
 				  }
 		case 'm': {
@@ -112,9 +113,6 @@ void LogMan::handleCmd(const char cmd) {
 			break;
 				  }
 		case 'k': {
-			if (!build_category) {
-				buildCategory();
-			}
 			kCmdHandle();
 			break;
 				  }
@@ -158,12 +156,12 @@ void LogMan::handleCmd(const char cmd) {
 			cerr << "Unrecognized command '" << cmd << "'!\n";
 			break;
 	} // switch
-	if (cmd == 't' || cmd == 'm' || cmd == 'c' || cmd == 'k') {
+	if (success && (cmd == 't' || cmd == 'm' || cmd == 'c' || cmd == 'k')) {
 		last_search = cmd;
 	}
 }
 
-void LogMan::tCmdHandle() {
+bool LogMan::tCmdHandle() {
 	string t1;
 	string t2;
 	int64_t num_entries = 0;
@@ -178,8 +176,10 @@ void LogMan::tCmdHandle() {
 		most_recent.first = lower - log_idx_ts.begin();
 		most_recent.second = upper - log_idx_ts.begin();
 		num_entries = most_recent.second - most_recent.first;
+		std::cout << "Timestamps search: " << num_entries << " entries found\n";
+		return true;
 	}
-	std::cout << "Timestamps search: " << num_entries << " entries found\n";
+	return false;
 }
 
 void LogMan::mCmdHandle() {
@@ -208,7 +208,8 @@ void LogMan::buildCategory() {
 
 void LogMan::cCmdHandle() {
 	string cat;
-	cin >> cat;
+	getline(cin, cat);
+	cat.erase(0, 1);
 	cat = getLower(cat);
 	last_cat_search = cat;
 	std::cout << "Category search: " << category[cat].size() << " entries found\n";
@@ -399,6 +400,9 @@ void LogMan::kCmdHandle() {
 			keyword = string(pos1, pos2);
 			if (keywords.find(keyword) == keywords.end()) {
 				keywords.insert(keyword);
+			}
+			if (pos2 == input.end()) {
+				break;
 			}
 		} // if
 	} // for
