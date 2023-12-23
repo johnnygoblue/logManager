@@ -431,6 +431,11 @@ void LogMan::kCmdHandle() {
 				}
 				s_cat = search(s_cat + (long)keysize, master_log[id].cat.end(), (*it).begin(), (*it).end(), matchKeyword);
 			}
+			if (found) {
+				match = found; // we got a match for this keyword!
+				keyword_map[*it].push_back(id);
+				continue;
+			}
 			//cout << "\n";
 			auto s_msg = search(master_log[id].msg.begin(), master_log[id].msg.end(),
 					(*it).begin(), (*it).end(), matchKeyword);
